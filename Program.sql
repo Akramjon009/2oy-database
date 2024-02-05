@@ -258,6 +258,16 @@ inner join persons on customers.customer_id=persons.person_id
 where  persons.person_birth_date between '01-01-2000' and '01-01-2005'
 
 16-test
+delete from shop_products
+ where product_title_id in (
+     select product_title_id
+     from product_titles
+     where product_category_id IN (
+         select category_id
+         from product_categories
+         where category_name = 'drinks'
+     )
+ );
 
 17-test
 insert into product_categories(category_id,category_name) values(19,'unusual')
@@ -313,6 +323,19 @@ end;$$;
 select * from getCustomerListForManufacturer1('OFS Capital Corporation');
 
 22-test
+create or replace function GetSalesRevenueOfGivenCity(city_name VARCHAR, country_name VARCHAR)
+ returns money AS $$
+ declare
+     total_revenue money;
+ BEGIN
+     select COALESCE(SUM(cod.price_with_discount * cod.product_amount), 0)
+     into total_revenue
+     from customer_orders co
+     join supermarket_locations sl ON co.supermarket_location_id = sl.supermarket_location_id
+     join locations l ON sl.location_id = l.location_id
+     join location_city lc ON l.location_city_id = lc.city_id
+     join customer_order_details cod ON co.customer_order_id = cod.customer_order_id
+     where lc.city = city_name AND lc.country = country_name;
 23 -test
 create view Checkout as
 select pe.person_first_name|| ' ' || pe.person_last_name as customer_full_name, pt.product_title, cos.price_with_discount, 
