@@ -258,8 +258,17 @@ inner join persons on customers.customer_id=persons.person_id
 where  persons.person_birth_date between '01-01-2000' and '01-01-2005'
 
 
-16-test
 17-test
+insert into product_categories(category_id,category_name) values(19,'unusual')
+
+insert into product_titles(product_title_id,product_title,product_category_id) values(365,'zor narsa bu',19)
+
+insert into product_suppliers(supplier_id,supplier_name) values(27,'Elyor')
+
+insert into product_manufacturers(manufacturer_id,manufacturer_name) values(39,'Sirdaryolik')
+
+insert into shop_products(product_id,product_title_id,product_manufacturer_id,product_supplier_id,unit_price,comment) 
+values(99001,365,39,27,'$200000','menimcha qoshildi')
 
 18-test
 SELECT
@@ -272,7 +281,25 @@ SELECT
   END AS type
 FROM  shop_products;
 
-19-test
+20-test
+CREATE or replace FUNCTION GETPRODUCTLISTBYOPERATIONDATE11(OPERATIONDATE date) RETURNS TABLE (P VARCHAR(255)) LANGUAGE PlpgSql AS $$
+begin
+return query select product_titles.product_title from customer_order_details
+inner join customer_orders using(customer_order_id)
+inner join product_titles on product_titles.product_title_id= customer_order_details.product_id
+where DATE(operation_time)=operationDate;
+end;$$;
+
+select * from GETPRODUCTLISTBYOPERATIONDATE11('2011-03-24');
+
+24 -test
+create view product_details  as
+select pt.product_title, pc.category_name, sup.supplier_name, pm.manufacturer_name  
+from shop_products as sp inner join product_titles as pt
+on sp.product_title_id=pt.product_title_id inner join product_categories as pc
+on pt.product_category_id = pc.category_id inner join product_suppliers as sup on 
+sp.product_supplier_id=sup.supplier_id inner join product_manufacturers as pm on
+sp.product_manufacturer_id = pm.manufacturer_id
 
 
 25-test 
